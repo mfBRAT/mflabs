@@ -1,0 +1,14 @@
+node_modules/
+__pycache__/
+*.pyc
+.DS_Store
+dist/
+build/
+*.spec
+*.zip
+*.log
+.env
+
+# secrets
+.env
+*.env

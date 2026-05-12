@@ -1,0 +1,14 @@
+{
+  "name": "pfp-scale-bot",
+  "version": "1.0.0",
+  "description": "Discord bot that scales pixel art to exact sizes for X PFP and more",
+  "main": "bot.js",
+  "scripts": {
+    "start": "node bot.js"
+  },
+  "dependencies": {
+    "discord.js": "^14.14.1",
+    "dotenv": "^16.4.5",
+    "sharp": "^0.33.4"
+  }
+}

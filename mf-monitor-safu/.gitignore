@@ -1,0 +1,18 @@
+# PyInstaller
+build/
+dist/
+*.spec.bak
+__pycache__/
+*.pyc
+*.pyo
+
+# Build output zip
+BTCWalletMonitor.zip
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# User config
+.btc_monitor_config.json

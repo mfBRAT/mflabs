@@ -1,0 +1,14 @@
+{
+  "name": "opensea-monitor",
+  "version": "2.0.0",
+  "type": "module",
+  "scripts": {
+    "start": "node opensea-monitor.js"
+  },
+  "dependencies": {
+    "@opensea/stream-js": "0.2.1",
+    "node-localstorage": "^3.0.5",
+    "node-notifier": "^10.0.1",
+    "ws": "^8.18.0"
+  }
+}

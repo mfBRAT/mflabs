@@ -1,0 +1,209 @@
+<title>Web Golf</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bowlby+One+SC&family=DM+Mono:wght@400;500&family=Instrument+Sans:wght@400;500;600&display=swap">
+<style>
+  /* Layout: a single scorecard column. Each section is one hole, and its button is the cup. */
+  :root {
+    --paper: #edf2ea;
+    --card: #f8faf5;
+    --ink: #15231b;
+    --muted: #55665b;
+    --rule: #c5d3c4;
+    --green: #1e6b43;
+    --on-green: #f3f8f1;
+    --flag: #cc3a2f;
+    --water: #2a78c2;
+    --display: "Bowlby One SC", "Arial Black", Impact, sans-serif;
+    --body: "Instrument Sans", "Helvetica Neue", Arial, sans-serif;
+    --mono: "DM Mono", ui-monospace, Menlo, Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper: #0f1813; --card: #16221b; --ink: #e4ece2; --muted: #93a598; --rule: #2b3b31;
+      --green: #43a06b; --on-green: #07130c; --flag: #ff6155; --water: #5aa6ee; color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #0f1813; --card: #16221b; --ink: #e4ece2; --muted: #93a598; --rule: #2b3b31;
+    --green: #43a06b; --on-green: #07130c; --flag: #ff6155; --water: #5aa6ee; color-scheme: dark;
+  }
+
+  body { background: var(--paper); color: var(--ink); font: 400 1rem/1.6 var(--body); }
+  .wrap { max-width: 760px; margin: 0 auto; padding-inline: 20px; padding-block: 28px 64px; display: grid; gap: 56px; }
+  a { color: var(--green); }
+  :focus-visible { outline: 3px solid var(--flag); outline-offset: 3px; }
+
+  .top { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; font: 500 .75rem/1 var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+  .top b { font: 400 1.1rem/1 var(--display); letter-spacing: .02em; color: var(--ink); text-transform: none; }
+
+  .hero { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 28px; align-items: end; }
+  .hero h1 { margin: 0; font: 400 clamp(2.4rem, 7vw, 4.2rem)/.98 var(--display); letter-spacing: -.01em; text-wrap: balance; }
+  .hero h1 em { font-style: normal; color: var(--green); }
+  .lede { margin: 18px 0 0; max-width: 46ch; color: var(--muted); font-size: 1.08rem; }
+  .actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 26px; align-items: center; }
+  .ascii { margin: 0; font: 500 clamp(.62rem, 1.6vw, .85rem)/1.15 var(--mono); color: var(--green); white-space: pre; }
+
+  .btn { font: 600 .95rem/1 var(--body); padding: 13px 18px; border-radius: 999px; border: 2px solid var(--green); background: var(--green); color: var(--on-green); cursor: pointer; text-decoration: none; display: inline-flex; gap: 8px; align-items: center; }
+  .btn:hover { filter: brightness(1.08); }
+  .btn.ghost { background: transparent; color: var(--green); }
+  .bm { font: 500 .85rem/1 var(--mono); padding: 11px 14px; border-radius: 8px; border: 2px dashed var(--green); color: var(--green); text-decoration: none; cursor: grab; background: var(--card); }
+
+  .hole { border-top: 2px solid var(--rule); padding-top: 22px; display: grid; gap: 14px; }
+  .hole-head { display: flex; gap: 14px; align-items: baseline; flex-wrap: wrap; }
+  .hole-num { font: 500 .75rem/1 var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--flag); }
+  .hole h2 { margin: 0; font: 400 clamp(1.6rem, 4.4vw, 2.3rem)/1.05 var(--display); text-wrap: balance; }
+  .hole p { margin: 0; max-width: 62ch; }
+  .note { font: 400 .8rem/1.5 var(--mono); color: var(--muted); }
+
+  .legend { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 10px 28px; margin: 0; }
+  .legend div { display: grid; grid-template-columns: 14px minmax(0, 1fr); gap: 10px; align-items: baseline; }
+  .legend dt { font-weight: 600; grid-column: 2; }
+  .legend dd { margin: 0; grid-column: 2; color: var(--muted); font-size: .9rem; }
+  .sw { grid-row: 1 / span 2; width: 14px; height: 14px; border-radius: 3px; align-self: start; margin-top: 5px; border: 2px solid var(--ink); }
+  .sw.wall { background: transparent; }
+  .sw.rough { background: repeating-linear-gradient(135deg, var(--green) 0 2px, transparent 2px 5px); border-color: var(--green); }
+  .sw.bump { border-radius: 50%; border-color: #e0368f; }
+  .sw.water { background: var(--water); border-color: var(--water); }
+  .sw.cup { background: var(--ink); border-radius: 50%; }
+  .sw.rail { background: #e5b53b; border-color: #e5b53b; }
+
+  .tiles { display: flex; flex-wrap: wrap; gap: 22px; padding-block: 8px; }
+  .tiles svg { width: 58px; height: 58px; border-radius: 50%; background: var(--card); border: 2px solid var(--rule); }
+
+  form { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+  label { width: 100%; font: 500 .75rem/1 var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+  input[type="email"] { font: 400 1rem/1 var(--body); padding: 12px 14px; border-radius: 8px; border: 2px solid var(--rule); background: var(--card); color: var(--ink); min-width: 0; flex: 1 1 220px; }
+  .danger { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; margin-top: 6px; }
+  .btn-danger { font: 600 .85rem/1 var(--body); padding: 10px 14px; border-radius: 8px; border: 2px solid var(--flag); background: transparent; color: var(--flag); cursor: pointer; }
+
+  ol.steps { margin: 0; padding-left: 1.3em; display: grid; gap: 6px; max-width: 62ch; }
+  .code { display: grid; gap: 10px; }
+  textarea { width: 100%; box-sizing: border-box; height: 84px; font: 400 .72rem/1.4 var(--mono); color: var(--muted); background: var(--card); border: 2px solid var(--rule); border-radius: 8px; padding: 10px; resize: vertical; }
+
+  footer { font: 400 .8rem/1.6 var(--mono); color: var(--muted); display: grid; gap: 4px; }
+
+  @media (max-width: 600px) {
+    .hero { grid-template-columns: minmax(0, 1fr); }
+    .ascii { order: -1; }
+  }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+</style>
+
+<div class="wrap">
+  <div class="top"><b>Web Golf</b><span>4 holes on this page · any site with the bookmarklet</span></div>
+
+  <header class="hero">
+    <div>
+      <h1>Every website is a <em>mini-golf</em> course.</h1>
+      <p class="lede">Headings turn into walls, paragraphs into rough, images into bumpers. The page's buttons are the cups. Drag anywhere to aim, let go to putt.</p>
+      <div class="actions">
+        <button class="btn" type="button" data-play>⛳ Tee off</button>
+        <a class="bm" id="bm" href="#install" title="Drag me to your bookmarks bar">⛳ Web Golf</a>
+      </div>
+    </div>
+<pre class="ascii" aria-hidden="true">  ____   ___   _      _____
+ / ___| / _ \ | |    |  ___|
+| |  _ | | | || |    | |_
+| |_| || |_| || |___ |  _|
+ \____| \___/ |_____||_|</pre>
+  </header>
+
+  <section class="hole" aria-labelledby="h1t">
+    <div class="hole-head"><span class="hole-num">Hole 1</span><h2 id="h1t">How a page becomes a course</h2></div>
+    <p>The script reads every element on the page, measures where it sits, and gives it a role. Long paragraphs like this one are rough, so a putt through them dies fast. Play along the margins or over the gaps between lines.</p>
+    <dl class="legend">
+      <div><span class="sw wall"></span><dt>Headings, big type</dt><dd>Walls. The ball bounces off.</dd></div>
+      <div><span class="sw rough"></span><dt>Body text</dt><dd>Rough. Slows the ball about 4×.</dd></div>
+      <div><span class="sw bump"></span><dt>Images, icons</dt><dd>Bumpers. They add speed.</dd></div>
+      <div><span class="sw rail"></span><dt>ASCII art</dt><dd>Rails and pegs, one per glyph.</dd></div>
+      <div><span class="sw water"></span><dt>Inputs, Buy, Delete</dt><dd>Water. One stroke penalty.</dd></div>
+      <div><span class="sw cup"></span><dt>Launch, Play, Sign up</dt><dd>The cups, one hole each.</dd></div>
+    </dl>
+    <div><button class="btn" type="button" data-play>Play this page</button></div>
+  </section>
+
+  <section class="hole" aria-labelledby="h2t">
+    <div class="hole-head"><span class="hole-num">Hole 2</span><h2 id="h2t">The bumper garden</h2></div>
+    <p>Round images become round bumpers. Bank off one at full power and it fires the ball back out faster than it came in.</p>
+    <div class="tiles" aria-hidden="true">
+      <svg viewBox="0 0 58 58"><circle cx="29" cy="29" r="13" fill="var(--card)" stroke="var(--ink)" stroke-width="2"/><circle cx="25" cy="25" r="1.6" fill="var(--muted)"/><circle cx="31" cy="24" r="1.6" fill="var(--muted)"/><circle cx="33" cy="31" r="1.6" fill="var(--muted)"/><circle cx="26" cy="32" r="1.6" fill="var(--muted)"/></svg>
+      <svg viewBox="0 0 58 58"><path d="M24 44V14" stroke="var(--ink)" stroke-width="2.5"/><path d="M25 15l16 6-16 6z" fill="var(--flag)"/><ellipse cx="24" cy="45" rx="9" ry="2.5" fill="var(--ink)"/></svg>
+      <svg viewBox="0 0 58 58"><path d="M22 20h14l-5 8v14h-4V28z" fill="var(--green)"/><ellipse cx="29" cy="18" rx="9" ry="3" fill="var(--green)"/></svg>
+      <svg viewBox="0 0 58 58"><path d="M20 42l14-26" stroke="var(--muted)" stroke-width="3" stroke-linecap="round"/><path d="M14 40c4-3 10-3 14 1l-3 5H14z" fill="var(--ink)"/></svg>
+      <svg viewBox="0 0 58 58"><ellipse cx="29" cy="31" rx="15" ry="7" fill="var(--ink)"/><ellipse cx="29" cy="29" rx="15" ry="7" fill="none" stroke="var(--green)" stroke-width="2"/></svg>
+    </div>
+    <div><button class="btn" type="button" data-play>Start a round</button></div>
+  </section>
+
+  <section class="hole" aria-labelledby="h3t">
+    <div class="hole-head"><span class="hole-num">Hole 3</span><h2 id="h3t">Water hazard</h2></div>
+    <p>Form fields are water, and so is any button that buys, deletes or aborts something. Splash in and you go back to where you hit from, plus one stroke.</p>
+    <form id="signup">
+      <label for="email">Email</label>
+      <input id="email" type="email" placeholder="you@example.com" autocomplete="off">
+      <button class="btn" type="submit">Sign up</button>
+    </form>
+    <p class="note" id="signup-note">This form is part of the course. Submitting it sends nothing.</p>
+    <div class="danger">
+      <button class="btn-danger" type="button" id="del">Delete account</button>
+      <span class="note" id="del-note">Also water. It deletes nothing.</span>
+    </div>
+  </section>
+
+  <section class="hole" id="install" aria-labelledby="h4t">
+    <div class="hole-head"><span class="hole-num">Hole 4</span><h2 id="h4t">Take it to any site</h2></div>
+    <ol class="steps">
+      <li>Drag the <strong>⛳ Web Golf</strong> chip at the top of this page onto your bookmarks bar.</li>
+      <li>If dragging doesn't work, copy the code below, add a new bookmark, and paste it in as the URL.</li>
+      <li>Open any website and click the bookmark. The page's buttons become the holes.</li>
+    </ol>
+    <div class="code">
+      <label for="bm-code">Bookmarklet code</label>
+      <textarea id="bm-code" readonly></textarea>
+      <div class="actions" style="margin-top:0">
+        <button class="btn ghost" type="button" id="copy">Copy bookmarklet</button>
+        <button class="btn" type="button" data-play>Try it on this page</button>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <span>Par is the shortest route around every wall and water hazard, divided by about one full-power putt, plus two.</span>
+    <span>Built by mfBRAT. Esc quits a round.</span>
+  </footer>
+</div>
+
+<script>
+/*__WEBGOLF__*/
+(function () {
+  var code = '(' + window.webGolf.toString() + ')();';
+  var href = 'javascript:' + encodeURIComponent(code);
+  var bm = document.getElementById('bm');
+  var ta = document.getElementById('bm-code');
+  bm.setAttribute('href', href);
+  bm.addEventListener('click', function (e) { e.preventDefault(); window.webGolf(); });
+  ta.value = href;
+
+  document.querySelectorAll('[data-play]').forEach(function (b) {
+    b.addEventListener('click', function () { window.webGolf(); });
+  });
+
+  document.getElementById('signup').addEventListener('submit', function (e) {
+    e.preventDefault();
+    document.getElementById('signup-note').textContent = 'Nothing was sent. In a round, the button is the cup and the field is water.';
+  });
+  document.getElementById('del').addEventListener('click', function () {
+    document.getElementById('del-note').textContent = 'Nothing was deleted. In a round, this button is water.';
+  });
+
+  var copy = document.getElementById('copy');
+  copy.addEventListener('click', function () {
+    var done = function () { copy.textContent = 'Copied'; setTimeout(function () { copy.textContent = 'Copy bookmarklet'; }, 1600); };
+    var fallback = function () { ta.focus(); ta.select(); copy.textContent = 'Selected. Press Ctrl+C or ⌘C'; };
+    try {
+      navigator.clipboard.writeText(href).then(done, fallback);
+    } catch (err) { fallback(); }
+  });
+})();
+</script>

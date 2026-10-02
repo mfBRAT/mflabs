@@ -1,0 +1,15 @@
+{
+  "name": "web-golf",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Turn any webpage into a mini-golf course.",
+  "type": "module",
+  "scripts": {
+    "build": "node build.mjs",
+    "test": "node test/play.mjs"
+  },
+  "devDependencies": {
+    "playwright": "1.56.1",
+    "terser": "^5.36.0"
+  }
+}

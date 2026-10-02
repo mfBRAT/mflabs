@@ -34,4 +34,11 @@ PFP scaling bot.
 
 ---
 
+### [web-golf](./web-golf)
+Turns any webpage into a top-down mini-golf course. Headings become walls, text becomes rough, images become bumpers, and the page's CTA buttons become the holes. Runs as a bookmarklet.
+
+**Stack:** Vanilla JS, Canvas
+
+---
+
 > mfmint is kept in a separate private repo.
